@@ -1,0 +1,24 @@
+# dependencies
+node_modules
+package-lock.json
+
+# production
+dist
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# editor
+.DS_Store
+*.sw?
+.idea
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# misc
+*.local
