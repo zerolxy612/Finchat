@@ -262,52 +262,55 @@ function MainPage() {
             </h1>
           </div>
 
-          {/* 快捷操作按钮 */}
-          <div className="quick-actions">
-            {quickActions.map((action, index) => (
-              <button key={index} className="action-btn">
-                <span className="action-icon">{action.icon}</span>
-                <span className="action-label">{action.label}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* 输入区域 */}
-          <form className="input-section" onSubmit={handleSubmit}>
-            <div className="input-wrapper">
-              <textarea
-                className="chat-input"
-                placeholder="粘贴公告或新闻全文，例如：XX公司关于签订重大销售合同的公告..."
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                rows={1}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSubmit(e);
-                  }
-                }}
-              />
-              <div className="input-actions">
-                <button type="button" className="add-btn">+</button>
-                <span className="quick-reply">
-                  <span className="lightning">⚡</span>
-                  开始传导分析
-                </span>
-              </div>
-              <div className="submit-actions">
-                <button type="button" className="voice-btn">🎤</button>
-                <button type="submit" className="send-btn">
-                  <span>↑</span>
+          {/* 底部区域（移动端固定在底部） */}
+          <div className="bottom-section">
+            {/* 快捷操作按钮 */}
+            <div className="quick-actions">
+              {quickActions.map((action, index) => (
+                <button key={index} className="action-btn">
+                  <span className="action-icon">{action.icon}</span>
+                  <span className="action-label">{action.label}</span>
                 </button>
-              </div>
+              ))}
             </div>
-          </form>
 
-          {/* 免责声明 */}
-          <p className="disclaimer">
-            当前支持：①公司重大合同 ②行业政策。分析结果由AI生成，仅供参考，不构成投资建议。
-          </p>
+            {/* 输入区域 */}
+            <form className="input-section" onSubmit={handleSubmit}>
+              <div className="input-wrapper">
+                <textarea
+                  className="chat-input"
+                  placeholder="粘贴公告或新闻全文，例如：XX公司关于签订重大销售合同的公告..."
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  rows={1}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSubmit(e);
+                    }
+                  }}
+                />
+                <div className="input-actions">
+                  <button type="button" className="add-btn">+</button>
+                  <span className="quick-reply">
+                    <span className="lightning">⚡</span>
+                    开始传导分析
+                  </span>
+                </div>
+                <div className="submit-actions">
+                  <button type="button" className="voice-btn">🎤</button>
+                  <button type="submit" className="send-btn">
+                    <span>↑</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            {/* 免责声明 */}
+            <p className="disclaimer">
+              当前支持：①公司重大合同 ②行业政策。分析结果由AI生成，仅供参考，不构成投资建议。
+            </p>
+          </div>
         </div>
       </main>
     </div>

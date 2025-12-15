@@ -929,6 +929,11 @@ body {
   transform: scale(0.95);
 }
 
+/* ========== 底部区域 ========== */
+.bottom-section {
+  display: contents;
+}
+
 /* ========== 免责声明 ========== */
 .disclaimer {
   font-size: 12px;
@@ -968,53 +973,109 @@ body {
     margin-left: 0;
   }
 
+  /* 移动端欢迎区域布局优化 */
+  .welcome-section {
+    justify-content: flex-start;
+    padding: 0;
+    gap: 0;
+    position: relative;
+    height: calc(100vh - 57px);
+    height: calc(100dvh - 57px);
+    overflow: hidden;
+  }
+
+  .welcome-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+  }
+
   .greeting {
     font-size: 26px;
   }
 
-  .welcome-section {
-    padding: 24px 16px;
-    gap: 24px;
+  /* 底部固定区域 */
+  .bottom-section {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 16px;
+    padding-bottom: 20px;
+    background: linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,0.95) 100%);
+    gap: 12px;
   }
 
   .quick-actions {
-    gap: 8px;
+    gap: 10px;
+    margin-bottom: 0;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .quick-actions::-webkit-scrollbar {
+    display: none;
   }
 
   .action-btn {
-    padding: 12px 16px;
-    min-width: 75px;
+    padding: 12px 18px;
+    min-width: auto;
+    flex-shrink: 0;
+    flex-direction: row;
+    gap: 8px;
+    border-radius: 24px;
   }
 
   .action-icon {
-    font-size: 20px;
+    font-size: 18px;
   }
 
   .action-label {
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .input-section {
-    padding: 0 12px;
+    padding: 0;
+    width: 100%;
+    max-width: 100%;
   }
 
   .input-wrapper {
-    padding: 12px 14px;
+    padding: 14px 16px;
+    border-radius: 20px;
   }
 
   .chat-input {
-    padding-right: 80px;
+    padding-right: 50px;
+    font-size: 16px;
+  }
+
+  .input-actions {
+    margin-top: 10px;
   }
 
   .submit-actions {
-    right: 12px;
+    right: 14px;
   }
 
-  .voice-btn,
+  .voice-btn {
+    display: none;
+  }
+
   .send-btn {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     font-size: 16px;
+  }
+
+  .disclaimer {
+    margin-top: 0;
+    padding: 0 4px;
+    max-width: 100%;
   }
 
   /* 登录页面移动端 */
@@ -1033,23 +1094,19 @@ body {
 
 @media (max-width: 480px) {
   .greeting {
-    font-size: 22px;
-  }
-
-  .quick-actions {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    width: 100%;
+    font-size: 24px;
   }
 
   .action-btn {
-    padding: 12px 8px;
-    min-width: unset;
+    padding: 12px 16px;
+  }
+
+  .action-icon {
+    font-size: 16px;
   }
 
   .action-label {
-    font-size: 11px;
+    font-size: 12px;
   }
 
   .nav-logo .logo-text {
@@ -1057,15 +1114,11 @@ body {
   }
 
   .chat-input {
-    padding-right: 70px;
+    font-size: 16px;
   }
 
   .quick-reply {
     font-size: 12px;
-  }
-
-  .voice-btn {
-    display: none;
   }
 }
 
