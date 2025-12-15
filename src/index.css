@@ -14,6 +14,8 @@
   --bg-secondary: #F9FAFB;
   --border-color: #E5E7EB;
   --sidebar-width: 280px;
+  --sidebar-collapsed-width: 72px;
+  --transition-speed: 0.3s;
 }
 
 *,
@@ -37,6 +39,330 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ========== 登录页面 ========== */
+.login-container {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+}
+
+.login-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.login-bg-shape {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.6;
+}
+
+.shape-1 {
+  width: 400px;
+  height: 400px;
+  background: rgba(147, 51, 234, 0.4);
+  top: -100px;
+  left: -100px;
+  animation: float 8s ease-in-out infinite;
+}
+
+.shape-2 {
+  width: 300px;
+  height: 300px;
+  background: rgba(236, 72, 153, 0.4);
+  top: 50%;
+  right: -50px;
+  animation: float 10s ease-in-out infinite reverse;
+}
+
+.shape-3 {
+  width: 250px;
+  height: 250px;
+  background: rgba(99, 102, 241, 0.4);
+  bottom: -50px;
+  left: 30%;
+  animation: float 12s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-30px) rotate(5deg);
+  }
+}
+
+.login-card {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  padding: 40px 36px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.login-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.login-logo-icon {
+  font-size: 36px;
+}
+
+.login-logo-text {
+  font-size: 28px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary-color), var(--gradient-mid));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.login-subtitle {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.login-tabs {
+  display: flex;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 28px;
+}
+
+.login-tab {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.login-tab.active {
+  background: var(--bg-primary);
+  color: var(--primary-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.form-input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 15px;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+
+.form-input:focus {
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.form-input::placeholder {
+  color: var(--text-muted);
+}
+
+.verify-code-wrapper {
+  display: flex;
+  gap: 12px;
+}
+
+.verify-code-wrapper .form-input {
+  flex: 1;
+}
+
+.verify-code-btn {
+  padding: 14px 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--primary-color);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.verify-code-btn:hover {
+  background: var(--border-color);
+}
+
+.form-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.remember-me input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary-color);
+}
+
+.forgot-password {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.forgot-password:hover {
+  text-decoration: underline;
+}
+
+.login-submit-btn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 8px;
+}
+
+.login-submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.35);
+}
+
+.login-submit-btn:active {
+  transform: translateY(0);
+}
+
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 24px 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-color);
+}
+
+.social-login {
+  display: flex;
+  gap: 12px;
+}
+
+.social-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-primary);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.social-btn:hover {
+  background: var(--bg-secondary);
+}
+
+.social-btn.wechat {
+  color: #07C160;
+}
+
+.login-footer {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.login-footer a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.login-footer a:hover {
+  text-decoration: underline;
+}
+
 /* ========== 主容器布局 ========== */
 .app-container {
   display: flex;
@@ -57,7 +383,54 @@ body {
   display: flex;
   flex-direction: column;
   z-index: 100;
-  transition: transform 0.3s ease;
+  transition: width var(--transition-speed) ease, transform var(--transition-speed) ease;
+  overflow: hidden;
+}
+
+/* 收缩状态的侧边栏 */
+.sidebar.collapsed {
+  width: var(--sidebar-collapsed-width);
+}
+
+.sidebar.collapsed .logo-text,
+.sidebar.collapsed .version,
+.sidebar.collapsed .search-box input,
+.sidebar.collapsed .new-chat-text,
+.sidebar.collapsed .username,
+.sidebar.collapsed .empty-state {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.sidebar.collapsed .sidebar-header {
+  padding: 16px 12px;
+  justify-content: center;
+}
+
+.sidebar.collapsed .logo {
+  justify-content: center;
+}
+
+.sidebar.collapsed .collapse-btn {
+  display: none;
+}
+
+.sidebar.collapsed .search-box {
+  justify-content: center;
+  padding: 10px;
+  margin: 8px;
+}
+
+.sidebar.collapsed .new-chat-sidebar-btn {
+  justify-content: center;
+  padding: 12px;
+  margin: 8px;
+}
+
+.sidebar.collapsed .user-info {
+  justify-content: center;
 }
 
 .sidebar-header {
@@ -66,22 +439,26 @@ body {
   justify-content: space-between;
   padding: 16px 20px;
   border-bottom: 1px solid var(--border-color);
+  min-height: 65px;
 }
 
 .logo {
   display: flex;
   align-items: center;
   gap: 8px;
+  transition: all var(--transition-speed) ease;
 }
 
 .logo-icon {
   font-size: 24px;
+  flex-shrink: 0;
 }
 
 .logo-text {
   font-size: 18px;
   font-weight: 700;
   color: var(--text-primary);
+  transition: opacity var(--transition-speed) ease, width var(--transition-speed) ease;
 }
 
 .version {
@@ -90,16 +467,41 @@ body {
   background: var(--bg-secondary);
   padding: 2px 6px;
   border-radius: 4px;
+  transition: opacity var(--transition-speed) ease, width var(--transition-speed) ease;
+}
+
+.collapse-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.collapse-btn:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 .close-sidebar-btn {
-  display: none;
   background: none;
   border: none;
   font-size: 18px;
   color: var(--text-secondary);
   cursor: pointer;
   padding: 4px 8px;
+}
+
+/* 移动端/桌面端显示控制 */
+.mobile-only {
+  display: none;
+}
+
+.desktop-only {
+  display: block;
 }
 
 .search-box {
@@ -111,11 +513,13 @@ body {
   background: var(--bg-secondary);
   border-radius: 10px;
   border: 1px solid var(--border-color);
+  transition: all var(--transition-speed) ease;
 }
 
 .search-icon {
   font-size: 14px;
   opacity: 0.6;
+  flex-shrink: 0;
 }
 
 .search-box input {
@@ -125,10 +529,42 @@ body {
   font-size: 14px;
   color: var(--text-primary);
   outline: none;
+  transition: opacity var(--transition-speed) ease, width var(--transition-speed) ease;
+  min-width: 0;
 }
 
 .search-box input::placeholder {
   color: var(--text-muted);
+}
+
+.new-chat-sidebar-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 16px 12px;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.new-chat-sidebar-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.new-chat-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.new-chat-text {
+  transition: opacity var(--transition-speed) ease, width var(--transition-speed) ease;
 }
 
 .chat-list {
@@ -142,6 +578,7 @@ body {
   color: var(--text-muted);
   font-size: 14px;
   padding: 40px 0;
+  transition: opacity var(--transition-speed) ease;
 }
 
 .sidebar-footer {
@@ -153,6 +590,7 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
+  transition: all var(--transition-speed) ease;
 }
 
 .avatar {
@@ -166,21 +604,30 @@ body {
   justify-content: center;
   font-weight: 600;
   font-size: 14px;
+  flex-shrink: 0;
 }
 
 .username {
   font-size: 14px;
   font-weight: 500;
   color: var(--text-primary);
+  transition: opacity var(--transition-speed) ease, width var(--transition-speed) ease;
 }
 
 /* ========== 侧边栏遮罩 ========== */
 .sidebar-overlay {
-  display: none;
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.4);
   z-index: 99;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+.sidebar-overlay.visible {
+  opacity: 1;
+  visibility: visible;
 }
 
 /* ========== 主内容区 ========== */
@@ -195,6 +642,12 @@ body {
     radial-gradient(ellipse 80% 50% at 50% 0%, rgba(147, 51, 234, 0.15) 0%, transparent 50%),
     radial-gradient(ellipse 60% 40% at 70% 20%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
     linear-gradient(180deg, #FDFAFF 0%, #FFFFFF 100%);
+  transition: margin-left var(--transition-speed) ease;
+}
+
+/* 侧边栏收缩时的主内容区 */
+.app-container.sidebar-collapsed .main-content {
+  margin-left: var(--sidebar-collapsed-width);
 }
 
 /* ========== 顶部导航 ========== */
@@ -208,14 +661,35 @@ body {
   border-bottom: 1px solid rgba(229, 231, 235, 0.5);
 }
 
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .menu-btn {
-  display: none;
   background: none;
   border: none;
   font-size: 22px;
   color: var(--text-secondary);
   cursor: pointer;
   padding: 8px;
+}
+
+.collapse-nav-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.collapse-nav-btn:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 .nav-logo {
@@ -337,6 +811,7 @@ body {
   padding: 14px 16px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   transition: border-color 0.2s, box-shadow 0.2s;
+  position: relative;
 }
 
 .input-wrapper:focus-within {
@@ -356,6 +831,7 @@ body {
   line-height: 1.5;
   min-height: 24px;
   max-height: 120px;
+  padding-right: 90px;
 }
 
 .chat-input::placeholder {
@@ -403,14 +879,11 @@ body {
 .submit-actions {
   position: absolute;
   right: 16px;
-  bottom: 14px;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.input-wrapper {
-  position: relative;
 }
 
 .voice-btn {
@@ -466,32 +939,33 @@ body {
 
 /* ========== 移动端适配 ========== */
 @media (max-width: 768px) {
-  :root {
-    --sidebar-width: 280px;
-  }
-
   .sidebar {
     transform: translateX(-100%);
+    width: var(--sidebar-width);
   }
 
   .sidebar.open {
     transform: translateX(0);
   }
 
-  .sidebar-overlay {
+  .sidebar.collapsed {
+    width: var(--sidebar-width);
+  }
+
+  .mobile-only {
     display: block;
   }
 
-  .close-sidebar-btn {
-    display: block;
+  .desktop-only {
+    display: none;
   }
 
   .main-content {
     margin-left: 0;
   }
 
-  .menu-btn {
-    display: block;
+  .app-container.sidebar-collapsed .main-content {
+    margin-left: 0;
   }
 
   .greeting {
@@ -526,12 +1000,14 @@ body {
 
   .input-wrapper {
     padding: 12px 14px;
-    padding-right: 100px;
+  }
+
+  .chat-input {
+    padding-right: 80px;
   }
 
   .submit-actions {
     right: 12px;
-    bottom: 12px;
   }
 
   .voice-btn,
@@ -539,6 +1015,19 @@ body {
     width: 32px;
     height: 32px;
     font-size: 16px;
+  }
+
+  /* 登录页面移动端 */
+  .login-card {
+    padding: 32px 24px;
+  }
+
+  .login-logo-icon {
+    font-size: 30px;
+  }
+
+  .login-logo-text {
+    font-size: 24px;
   }
 }
 
@@ -567,12 +1056,16 @@ body {
     display: none;
   }
 
-  .input-wrapper {
-    padding-right: 90px;
+  .chat-input {
+    padding-right: 70px;
   }
 
   .quick-reply {
     font-size: 12px;
+  }
+
+  .voice-btn {
+    display: none;
   }
 }
 
@@ -590,6 +1083,10 @@ body {
 
   .input-section {
     padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+
+  .login-container {
+    padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
   }
 }
 
