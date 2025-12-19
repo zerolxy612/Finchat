@@ -22,3 +22,8 @@ lerna-debug.log*
 
 # misc
 *.local
+
+# environment variables
+.env
+.env.local
+.env.*.local

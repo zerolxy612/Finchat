@@ -1,18 +1,66 @@
 import { useState } from 'react';
 import './index.css';
+import { login, register, sendMessage, sendMessageWithFile } from './services/api-v2';
+import type { MessageType, Message } from './types/api-v2';
 
 // 登录页面组件
 function LoginPage({ onLogin }: { onLogin: () => void }) {
   const [isLogin, setIsLogin] = useState(true);
-  const [phone, setPhone] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [verifyCode, setVerifyCode] = useState('');
+  const [nickname, setNickname] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // 模拟登录/注册
-    onLogin();
+    setError('');
+
+    if (!username.trim() || !password.trim()) {
+      setError('请填写完整信息');
+      return;
+    }
+
+    if (!isLogin) {
+      // 注册逻辑
+      if (password !== confirmPassword) {
+        setError('两次密码不一致');
+        return;
+      }
+
+      try {
+        setLoading(true);
+        await register({
+          username: username,
+          password: password,
+          nickname: nickname.trim() || undefined,
+        });
+        alert('注册成功！请登录');
+        setIsLogin(true);
+        setPassword('');
+        setConfirmPassword('');
+        setNickname('');
+      } catch (err: any) {
+        setError(err.message || '注册失败');
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      // 登录逻辑
+      try {
+        setLoading(true);
+        await login({
+          username: username,
+          password: password,
+        });
+        onLogin();
+      } catch (err: any) {
+        setError(err.message || '登录失败');
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
   return (
@@ -26,7 +74,6 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
       <div className="login-card">
         <div className="login-header">
           <div className="login-logo">
-            <span className="login-logo-icon">💎</span>
             <span className="login-logo-text">FinChat</span>
           </div>
           <p className="login-subtitle">智能解析公告事件，挖掘产业链投资机会</p>
@@ -48,32 +95,43 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
         </div>
 
         <form className="login-form" onSubmit={handleSubmit}>
+          {error && (
+            <div style={{
+              padding: '10px',
+              background: '#fff2f0',
+              border: '1px solid #ffccc7',
+              borderRadius: '4px',
+              color: '#cf1322',
+              marginBottom: '15px',
+              fontSize: '14px'
+            }}>
+              {error}
+            </div>
+          )}
+
           <div className="form-group">
-            <label className="form-label">手机号</label>
+            <label className="form-label">用户名</label>
             <input
-              type="tel"
+              type="text"
               className="form-input"
-              placeholder="请输入手机号"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              placeholder="请输入用户名"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              disabled={loading}
             />
           </div>
 
           {!isLogin && (
             <div className="form-group">
-              <label className="form-label">验证码</label>
-              <div className="verify-code-wrapper">
-                <input
-                  type="text"
-                  className="form-input"
-                  placeholder="请输入验证码"
-                  value={verifyCode}
-                  onChange={(e) => setVerifyCode(e.target.value)}
-                />
-                <button type="button" className="verify-code-btn">
-                  获取验证码
-                </button>
-              </div>
+              <label className="form-label">昵称（可选）</label>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="请输入昵称"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                disabled={loading}
+              />
             </div>
           )}
 
@@ -85,6 +143,7 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
               placeholder="请输入密码"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
             />
           </div>
 
@@ -97,6 +156,7 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
                 placeholder="请再次输入密码"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                disabled={loading}
               />
             </div>
           )}
@@ -111,12 +171,13 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
             </div>
           )}
 
-          <button type="submit" className="login-submit-btn">
-            {isLogin ? '登录' : '注册'}
+          <button type="submit" className="login-submit-btn" disabled={loading}>
+            {loading ? '处理中...' : (isLogin ? '登录' : '注册')}
           </button>
         </form>
 
-        <div className="login-divider">
+        {/* 微信登录 - 暂时注释 */}
+        {/* <div className="login-divider">
           <span>或</span>
         </div>
 
@@ -124,7 +185,7 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
           <button type="button" className="social-btn wechat">
             <span>微信登录</span>
           </button>
-        </div>
+        </div> */}
 
         <p className="login-footer">
           登录即表示同意 <a href="#">用户协议</a> 和 <a href="#">隐私政策</a>
@@ -137,21 +198,87 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
 // 主页面组件
 function MainPage() {
   const [inputValue, setInputValue] = useState('');
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false); // 移动端侧边栏默认关闭
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [selectedType, setSelectedType] = useState<MessageType>('major_contract');
+  const [analyzing, setAnalyzing] = useState(false);
+  const [result, setResult] = useState<Message | null>(null);
+  const [error, setError] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const quickActions = [
-    { icon: '📄', label: '重大合同' },
-    { icon: '📜', label: '行业政策' },
-    { icon: '📈', label: '业绩预告' },
-    { icon: '💰', label: '产品提价' },
+  const quickActions: Array<{ icon: string; label: string; type: MessageType }> = [
+    { icon: '📄', label: '重大合同', type: 'major_contract' },
+    { icon: '📜', label: '行业政策', type: 'industry_policy' },
+    { icon: '📈', label: '业绩预告', type: 'earnings_forecast' },
+    { icon: '💰', label: '产品提价', type: 'product_price_increase' },
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // 示例文本
+  const exampleTexts: Record<string, string> = {
+    major_contract: 'XX公司公告：公司与YY公司签订设备采购合同，合同总金额约12亿元人民币，履行期限为2026年12月前。若顺利执行将对公司未来经营业绩产生积极影响。',
+    industry_policy: '《关于促进储能行业高质量发展的指导意见》：到2027年新型储能装机规模显著提升，支持电化学储能关键材料与装备国产化，鼓励电网侧、工商业侧储能示范应用；加强安全标准与准入管理，严控低质产能。',
+    earnings_forecast: 'ZZ公司2025年度业绩预告：预计2025年归母净利润为8.0亿元-9.2亿元，同比增长45%-65%；扣非净利润为7.2亿元-8.5亿元，同比增长40%-60%。业绩增长主要由于核心产品销量提升、原材料成本下降以及费用率改善。',
+    product_price_increase: 'AA公司通知：自2026年1月1日起，对部分工业级硅胶产品价格上调8%-12%。提价原因包括上游原料价格上涨、环保治理投入增加以及部分产能检修导致供给偏紧。',
+  };
+
+  // 点击快捷按钮
+  const handleQuickAction = (type: MessageType) => {
+    setSelectedType(type);
+    setInputValue(exampleTexts[type] || '');
+    setResult(null);
+    setError('');
+    setSelectedFile(null);
+  };
+
+  // 文件选择
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // 检查文件类型
+      const allowedTypes = ['.pdf', '.docx', '.doc', '.txt'];
+      const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+      if (!allowedTypes.includes(fileExt)) {
+        setError(`不支持的文件格式，仅支持: ${allowedTypes.join(', ')}`);
+        return;
+      }
+      setSelectedFile(file);
+      setError('');
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (inputValue.trim()) {
-      console.log('提交问题:', inputValue);
+
+    if (!selectedFile && !inputValue.trim()) {
+      setError('请输入文本或上传文件');
+      return;
+    }
+
+    setAnalyzing(true);
+    setError('');
+    setResult(null);
+
+    try {
+      let response: Message;
+
+      if (selectedFile) {
+        // 文件上传模式
+        response = await sendMessageWithFile(selectedFile, selectedType);
+      } else {
+        // 文本输入模式
+        response = await sendMessage({
+          content: inputValue,
+          type: selectedType,
+        });
+      }
+
+      setResult(response);
       setInputValue('');
+      setSelectedFile(null);
+    } catch (err: any) {
+      setError(err.message || '分析失败，请稍后重试');
+    } finally {
+      setAnalyzing(false);
     }
   };
 
@@ -171,6 +298,16 @@ function MainPage() {
     setSidebarCollapsed(!sidebarCollapsed);
   };
 
+  // 登出功能
+  const handleLogout = () => {
+    if (confirm('确定要退出登录吗？')) {
+      // 清除 Token
+      localStorage.removeItem('finchat_access_token');
+      // 刷新页面回到登录页
+      window.location.reload();
+    }
+  };
+
   return (
     <div className={`app-container ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
       {/* 移动端遮罩 */}
@@ -183,7 +320,6 @@ function MainPage() {
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''} ${sidebarCollapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-header">
           <div className="logo">
-            <span className="logo-icon">💎</span>
             <span className="logo-text">FinChat</span>
             <span className="version">v1.0</span>
           </div>
@@ -220,6 +356,13 @@ function MainPage() {
           <div className="user-info">
             <div className="avatar">U</div>
             <span className="username">用户</span>
+            <button
+              className="logout-btn"
+              onClick={handleLogout}
+              title="退出登录"
+            >
+              退出
+            </button>
           </div>
         </div>
       </aside>
@@ -243,7 +386,6 @@ function MainPage() {
               {sidebarCollapsed ? '☰' : '◀'}
             </button>
             <div className="nav-logo">
-              <span className="logo-icon">💎</span>
               <span className="logo-text">FinChat</span>
             </div>
           </div>
@@ -254,35 +396,174 @@ function MainPage() {
 
         {/* 欢迎区域 */}
         <div className="welcome-section">
-          <div className="welcome-content">
-            <h1 className="greeting">
-              你好，
-              <br />
-              请粘贴需要分析的<span className="highlight">公告或新闻</span>
-            </h1>
-          </div>
+          {!result && (
+            <div className="welcome-content">
+              <h1 className="greeting">
+                你好，
+                <br />
+                请粘贴需要分析的<span className="highlight">公告或新闻</span>
+              </h1>
+            </div>
+          )}
+
+          {/* 分析结果展示 */}
+          {result && (
+            <div className="analysis-result" style={{
+              padding: '20px',
+              maxWidth: '900px',
+              margin: '0 auto',
+              background: 'white',
+              borderRadius: '12px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            }}>
+              <h2 style={{ marginBottom: '20px', color: '#333' }}>📊 分析结果</h2>
+
+              {/* 核心解读 */}
+              <div style={{ marginBottom: '25px', padding: '15px', background: '#f6ffed', borderRadius: '8px', border: '1px solid #b7eb8f' }}>
+                <h3 style={{ marginBottom: '10px', color: '#52c41a' }}>💡 核心解读</h3>
+                <p style={{ fontSize: '16px', lineHeight: '1.6', marginBottom: '10px' }}>{result.response.interpretation.core_content}</p>
+                <div style={{ display: 'flex', gap: '15px', fontSize: '14px' }}>
+                  <span>情绪: <strong>{result.response.interpretation.sentiment}</strong></span>
+                  <span>置信度: <strong>{result.response.interpretation.confidence}%</strong></span>
+                </div>
+              </div>
+
+              {/* 传导链路 */}
+              <div style={{ marginBottom: '25px', padding: '15px', background: '#e6f7ff', borderRadius: '8px', border: '1px solid #91d5ff' }}>
+                <h3 style={{ marginBottom: '10px', color: '#1890ff' }}>🔗 传导链路</h3>
+                <pre style={{
+                  whiteSpace: 'pre-wrap',
+                  fontSize: '14px',
+                  lineHeight: '1.8',
+                  margin: 0,
+                  fontFamily: 'inherit'
+                }}>
+                  {result.response.path_text}
+                </pre>
+              </div>
+
+              {/* 风险提示 */}
+              <div style={{ marginBottom: '25px', padding: '15px', background: '#fff7e6', borderRadius: '8px', border: '1px solid #ffd591' }}>
+                <h3 style={{ marginBottom: '10px', color: '#fa8c16' }}>⚠️ 风险提示</h3>
+                <ul style={{ margin: '0', paddingLeft: '20px' }}>
+                  {result.response.risks.map((risk, index) => (
+                    <li key={index} style={{ marginBottom: '5px' }}>{risk}</li>
+                  ))}
+                </ul>
+                <p style={{ marginTop: '10px', fontSize: '13px', color: '#666' }}>
+                  <strong>一般风险:</strong> {result.response.general_risks.join('、')}
+                </p>
+              </div>
+
+              {/* 提取的事实 */}
+              <div style={{ marginBottom: '20px', padding: '15px', background: '#f5f5f5', borderRadius: '8px' }}>
+                <h3 style={{ marginBottom: '10px', color: '#666' }}>📋 提取的事实</h3>
+                <pre style={{
+                  whiteSpace: 'pre-wrap',
+                  fontSize: '12px',
+                  overflow: 'auto',
+                  margin: 0,
+                  fontFamily: 'Monaco, Courier New, monospace'
+                }}>
+                  {JSON.stringify(result.response.extracted_facts, null, 2)}
+                </pre>
+              </div>
+
+              {/* 免责声明 */}
+              <div style={{ fontSize: '12px', color: '#999', borderTop: '1px solid #eee', paddingTop: '15px' }}>
+                <p style={{ marginBottom: '5px' }}>{result.response.disclaimer}</p>
+                <p>追踪ID: {result.response.trace_id} | 耗时: {result.response.latency_ms}ms</p>
+              </div>
+
+              {/* 重新分析按钮 */}
+              <button
+                onClick={() => {
+                  setResult(null);
+                  setInputValue('');
+                }}
+                style={{
+                  marginTop: '15px',
+                  padding: '10px 20px',
+                  background: '#1890ff',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px'
+                }}
+              >
+                重新分析
+              </button>
+            </div>
+          )}
 
           {/* 底部区域（移动端固定在底部） */}
           <div className="bottom-section">
             {/* 快捷操作按钮 */}
             <div className="quick-actions">
               {quickActions.map((action, index) => (
-                <button key={index} className="action-btn">
+                <button
+                  key={index}
+                  className={`action-btn ${selectedType === action.type ? 'active' : ''}`}
+                  onClick={() => handleQuickAction(action.type)}
+                  disabled={analyzing}
+                >
                   <span className="action-icon">{action.icon}</span>
                   <span className="action-label">{action.label}</span>
                 </button>
               ))}
             </div>
 
+            {/* 错误提示 */}
+            {error && (
+              <div style={{
+                padding: '12px',
+                background: '#fff2f0',
+                border: '1px solid #ffccc7',
+                borderRadius: '8px',
+                color: '#cf1322',
+                marginBottom: '15px',
+                fontSize: '14px'
+              }}>
+                ❌ {error}
+              </div>
+            )}
+
             {/* 输入区域 */}
             <form className="input-section" onSubmit={handleSubmit}>
               <div className="input-wrapper">
+                {selectedFile && (
+                  <div style={{
+                    padding: '10px',
+                    background: '#e6f7ff',
+                    borderRadius: '6px',
+                    marginBottom: '10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  }}>
+                    <span style={{ fontSize: '14px' }}>📎 {selectedFile.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedFile(null)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '18px'
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
                 <textarea
                   className="chat-input"
-                  placeholder="粘贴公告或新闻全文，例如：XX公司关于签订重大销售合同的公告..."
+                  placeholder={selectedFile ? "已选择文件，点击发送开始分析..." : "粘贴公告或新闻全文，或上传文件（支持PDF/Word/TXT）..."}
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  rows={1}
+                  rows={3}
+                  disabled={analyzing || !!selectedFile}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
@@ -291,16 +572,31 @@ function MainPage() {
                   }}
                 />
                 <div className="input-actions">
-                  <button type="button" className="add-btn">+</button>
+                  <label htmlFor="file-upload" style={{ cursor: 'pointer' }}>
+                    <input
+                      id="file-upload"
+                      type="file"
+                      accept=".pdf,.docx,.doc,.txt"
+                      onChange={handleFileSelect}
+                      disabled={analyzing}
+                      style={{ display: 'none' }}
+                    />
+                    <button type="button" className="add-btn" disabled={analyzing} onClick={(e) => {
+                      e.preventDefault();
+                      document.getElementById('file-upload')?.click();
+                    }}>
+                      📎
+                    </button>
+                  </label>
                   <span className="quick-reply">
                     <span className="lightning">⚡</span>
-                    开始传导分析
+                    {analyzing ? '分析中...' : '开始传导分析'}
                   </span>
                 </div>
                 <div className="submit-actions">
-                  <button type="button" className="voice-btn">🎤</button>
-                  <button type="submit" className="send-btn">
-                    <span>↑</span>
+                  <button type="button" className="voice-btn" disabled={analyzing}>🎤</button>
+                  <button type="submit" className="send-btn" disabled={analyzing}>
+                    <span>{analyzing ? '⏳' : '↑'}</span>
                   </button>
                 </div>
               </div>

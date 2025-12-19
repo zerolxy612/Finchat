@@ -7,6 +7,7 @@ import * as conversationService from './conversation';
 import * as messageService from './message';
 import * as attachmentService from './attachment';
 import * as adminService from './admin';
+import * as analysisService from './analysis';
 
 export {
   authService,
@@ -14,6 +15,7 @@ export {
   messageService,
   attachmentService,
   adminService,
+  analysisService,
 };
 
 // 也可以单独导出
@@ -22,4 +24,5 @@ export * from './conversation';
 export * from './message';
 export * from './attachment';
 export * from './admin';
+export * from './analysis';
 

@@ -517,8 +517,9 @@ body {
 }
 
 .search-icon {
-  font-size: 14px;
-  opacity: 0.6;
+  width: 16px;
+  height: 16px;
+  color: var(--text-muted);
   flex-shrink: 0;
 }
 
@@ -591,6 +592,7 @@ body {
   align-items: center;
   gap: 12px;
   transition: all var(--transition-speed) ease;
+  position: relative;
 }
 
 .avatar {
@@ -607,6 +609,34 @@ body {
   flex-shrink: 0;
 }
 
+.logout-btn {
+  margin-left: auto;
+  background: none;
+  border: 1px solid var(--border-color);
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  font-weight: 500;
+}
+
+.logout-btn:hover {
+  color: #ef4444;
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.logout-btn:active {
+  transform: scale(0.95);
+}
+
+.sidebar.collapsed .logout-btn {
+  display: none;
+}
+
 .username {
   font-size: 14px;
   font-weight: 500;
@@ -614,7 +644,7 @@ body {
   transition: opacity var(--transition-speed) ease, width var(--transition-speed) ease;
 }
 
-/* ========== 侧边栏遮罩 ========== */
+/* ========== 侧边栏遮罩（仅移动端） ========== */
 .sidebar-overlay {
   position: fixed;
   inset: 0;
@@ -623,11 +653,19 @@ body {
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s, visibility 0.3s;
+  display: none; /* 桌面端默认隐藏 */
 }
 
 .sidebar-overlay.visible {
   opacity: 1;
   visibility: visible;
+}
+
+/* 移动端才显示遮罩 */
+@media (max-width: 768px) {
+  .sidebar-overlay {
+    display: block;
+  }
 }
 
 /* ========== 主内容区 ========== */
@@ -785,6 +823,21 @@ body {
   border-color: var(--primary-light);
   box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
   transform: translateY(-2px);
+}
+
+.action-btn.active {
+  background: linear-gradient(135deg, var(--gradient-start), var(--primary-color));
+  border-color: var(--primary-color);
+  color: white;
+}
+
+.action-btn.active .action-label {
+  color: white;
+}
+
+.action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .action-icon {

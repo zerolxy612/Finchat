@@ -4,4 +4,5 @@
 
 export * from './api';
 export * from './feedback';
+export * from './analysis';
 
