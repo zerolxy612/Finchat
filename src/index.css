@@ -1238,3 +1238,44 @@ body {
 .input-section {
   animation: fadeIn 0.6s ease-out 0.2s backwards;
 }
+
+/* ========== 提取的事实 - 优化样式 ========== */
+.fact-card {
+  padding: 12px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+  transition: all 0.2s;
+}
+
+.fact-card:hover {
+  border-color: #1890ff;
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.fact-label {
+  font-size: 12px;
+  color: #999;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.fact-value {
+  font-size: 14px;
+  color: #333;
+  font-weight: 600;
+}
+
+.fact-list {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 14px;
+  color: #333;
+  list-style-type: disc;
+}
+
+.fact-list li {
+  margin-bottom: 6px;
+  line-height: 1.6;
+}

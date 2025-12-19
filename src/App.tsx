@@ -3,6 +3,40 @@ import './index.css';
 import { login, register, sendMessage, sendMessageWithFile } from './services/api-v2';
 import type { MessageType, Message } from './types/api-v2';
 
+// 辅助函数：格式化字段名称
+const formatFieldName = (key: string): string => {
+  const fieldNameMap: Record<string, string> = {
+    company: '公司名称',
+    counterparty: '合作方',
+    amount: '合同金额',
+    scope: '合同范围',
+    duration: '履行期限',
+    sign_date: '签订日期',
+    conditions: '合同条件',
+    materiality: '重要性说明',
+    policy_name: '政策名称',
+    issuing_authority: '发布机构',
+    target_year: '目标年份',
+    key_targets: '关键目标',
+    support_measures: '支持措施',
+    regulatory_requirements: '监管要求',
+    forecast_year: '预告年份',
+    net_profit_range: '归母净利润',
+    net_profit_growth: '净利润增长',
+    adjusted_net_profit_range: '扣非净利润',
+    adjusted_net_profit_growth: '扣非增长',
+    growth_drivers: '增长驱动',
+    previous_year_net_profit: '上年净利润',
+    product_category: '产品类别',
+    price_increase_range: '提价幅度',
+    effective_date: '生效日期',
+    reasons: '提价原因',
+    source_quotes: '来源引用',
+  };
+
+  return fieldNameMap[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+};
+
 // 登录页面组件
 function LoginPage({ onLogin }: { onLogin: () => void }) {
   const [isLogin, setIsLogin] = useState(true);
@@ -390,7 +424,7 @@ function MainPage() {
             </div>
           </div>
           <button className="new-chat-btn">
-            ✏️
+            新对话
           </button>
         </header>
 
@@ -457,16 +491,79 @@ function MainPage() {
 
               {/* 提取的事实 */}
               <div style={{ marginBottom: '20px', padding: '15px', background: '#f5f5f5', borderRadius: '8px' }}>
-                <h3 style={{ marginBottom: '10px', color: '#666' }}>📋 提取的事实</h3>
-                <pre style={{
-                  whiteSpace: 'pre-wrap',
-                  fontSize: '12px',
-                  overflow: 'auto',
-                  margin: 0,
-                  fontFamily: 'Monaco, Courier New, monospace'
-                }}>
-                  {JSON.stringify(result.response.extracted_facts, null, 2)}
-                </pre>
+                <h3 style={{ marginBottom: '15px', color: '#666' }}>📋 提取的事实</h3>
+                <div style={{ display: 'grid', gap: '12px' }}>
+                  {Object.entries(result.response.extracted_facts).map(([key, value]) => {
+                    // 跳过 source_quotes 等复杂对象
+                    if (typeof value === 'object' && value !== null) {
+                      if (Array.isArray(value)) {
+                        // 处理数组类型
+                        return (
+                          <div key={key} style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            padding: '10px',
+                            background: 'white',
+                            borderRadius: '6px',
+                            border: '1px solid #e0e0e0'
+                          }}>
+                            <span style={{
+                              fontSize: '12px',
+                              color: '#999',
+                              marginBottom: '6px',
+                              fontWeight: '500'
+                            }}>
+                              {formatFieldName(key)}
+                            </span>
+                            <ul style={{
+                              margin: 0,
+                              paddingLeft: '20px',
+                              fontSize: '14px',
+                              color: '#333'
+                            }}>
+                              {value.map((item, idx) => (
+                                <li key={idx} style={{ marginBottom: '4px' }}>
+                                  {typeof item === 'object' ? JSON.stringify(item) : String(item)}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        );
+                      }
+                      // 跳过复杂对象
+                      return null;
+                    }
+
+                    // 处理简单值
+                    return (
+                      <div key={key} style={{
+                        display: 'flex',
+                        alignItems: 'baseline',
+                        padding: '10px',
+                        background: 'white',
+                        borderRadius: '6px',
+                        border: '1px solid #e0e0e0'
+                      }}>
+                        <span style={{
+                          fontSize: '12px',
+                          color: '#999',
+                          minWidth: '120px',
+                          fontWeight: '500'
+                        }}>
+                          {formatFieldName(key)}:
+                        </span>
+                        <span style={{
+                          fontSize: '14px',
+                          color: '#333',
+                          fontWeight: '600',
+                          flex: 1
+                        }}>
+                          {value === null ? '未提供' : String(value)}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
               {/* 免责声明 */}
