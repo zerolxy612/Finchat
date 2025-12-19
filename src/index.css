@@ -1054,6 +1054,33 @@ body {
 
 /* ========== 移动端适配 ========== */
 @media (max-width: 768px) {
+  .analysis-result {
+    width: 100%;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  .submitted-file-name {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+
+  .submitted-file-text {
+    white-space: normal;
+    word-break: break-all;
+  }
+
+  .file-chip {
+    align-items: flex-start;
+  }
+
+  .file-chip-name {
+    white-space: normal;
+    word-break: break-all;
+  }
+
   .sidebar {
     transform: translateX(-100%);
     width: var(--sidebar-width);
