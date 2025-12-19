@@ -239,6 +239,12 @@ function MainPage() {
   const [result, setResult] = useState<Message | null>(null);
   const [error, setError] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  // 保存用户提交时的输入信息，用于结果展示
+  const [submittedInput, setSubmittedInput] = useState<{
+    type: MessageType;
+    content: string;
+    fileName?: string;
+  } | null>(null);
 
   const quickActions: Array<{ icon: string; label: string; type: MessageType }> = [
     { icon: '📄', label: '重大合同', type: 'major_contract' },
@@ -287,6 +293,13 @@ function MainPage() {
       setError('请输入文本或上传文件');
       return;
     }
+
+    // 保存用户提交的输入信息
+    setSubmittedInput({
+      type: selectedType,
+      content: selectedFile ? '' : inputValue,
+      fileName: selectedFile?.name,
+    });
 
     setAnalyzing(true);
     setError('');
@@ -452,6 +465,65 @@ function MainPage() {
             }}>
               <h2 style={{ marginBottom: '20px', color: '#333' }}>📊 分析结果</h2>
 
+              {/* 用户输入信息展示 */}
+              {submittedInput && (
+                <div style={{
+                  marginBottom: '20px',
+                  padding: '12px 15px',
+                  background: '#fafafa',
+                  borderRadius: '8px',
+                  border: '1px solid #e8e8e8',
+                  width: '100%',
+                  maxWidth: '100%',
+                  boxSizing: 'border-box'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    marginBottom: '8px',
+                    flexWrap: 'wrap'
+                  }}>
+                    <span style={{
+                      padding: '4px 10px',
+                      background: 'linear-gradient(135deg, #1890ff 0%, #096dd9 100%)',
+                      color: 'white',
+                      borderRadius: '4px',
+                      fontSize: '12px',
+                      fontWeight: '500',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      {quickActions.find(a => a.type === submittedInput.type)?.icon} {quickActions.find(a => a.type === submittedInput.type)?.label || submittedInput.type}
+                    </span>
+                    <span style={{ fontSize: '12px', color: '#999' }}>分析类型</span>
+                  </div>
+                  {submittedInput.fileName ? (
+                    <div className="submitted-file-name">
+                      <span>📎</span>
+                      <strong>上传文件：</strong>
+                      <span className="submitted-file-text">{submittedInput.fileName}</span>
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: '13px', color: '#666', lineHeight: '1.6', width: '100%' }}>
+                      <strong style={{ color: '#333' }}>原始输入：</strong>
+                      <span style={{
+                        display: 'block',
+                        marginTop: '6px',
+                        padding: '8px 10px',
+                        background: 'white',
+                        borderRadius: '4px',
+                        border: '1px solid #eee',
+                        maxHeight: '80px',
+                        overflow: 'auto',
+                        wordBreak: 'break-word'
+                      }}>
+                        {submittedInput.content}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* 核心解读 */}
               <div style={{ marginBottom: '25px', padding: '15px', background: '#f6ffed', borderRadius: '8px', border: '1px solid #b7eb8f' }}>
                 <h3 style={{ marginBottom: '10px', color: '#52c41a' }}>💡 核心解读</h3>
@@ -494,10 +566,83 @@ function MainPage() {
                 <h3 style={{ marginBottom: '15px', color: '#666' }}>📋 提取的事实</h3>
                 <div style={{ display: 'grid', gap: '12px' }}>
                   {Object.entries(result.response.extracted_facts).map(([key, value]) => {
-                    // 跳过 source_quotes 等复杂对象
+                    // 特殊处理 source_quotes
+                    if (key === 'source_quotes' && Array.isArray(value)) {
+                      return (
+                        <div key={key} style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          padding: '12px',
+                          background: 'white',
+                          borderRadius: '6px',
+                          border: '1px solid #e0e0e0'
+                        }}>
+                          <span style={{
+                            fontSize: '12px',
+                            color: '#999',
+                            marginBottom: '10px',
+                            fontWeight: '500'
+                          }}>
+                            {formatFieldName(key)}
+                          </span>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {value.map((item: any, idx: number) => (
+                              <div key={idx} style={{
+                                padding: '10px 12px',
+                                background: '#fafafa',
+                                borderRadius: '6px',
+                                borderLeft: '3px solid #1890ff'
+                              }}>
+                                {item.quote && (
+                                  <div style={{ marginBottom: '8px' }}>
+                                    <div style={{
+                                      fontSize: '11px',
+                                      color: '#999',
+                                      marginBottom: '4px',
+                                      fontWeight: '500'
+                                    }}>
+                                      📄 原文引用
+                                    </div>
+                                    <div style={{
+                                      fontSize: '13px',
+                                      color: '#333',
+                                      lineHeight: '1.6',
+                                      fontStyle: 'italic'
+                                    }}>
+                                      "{item.quote}"
+                                    </div>
+                                  </div>
+                                )}
+                                {item.why && (
+                                  <div>
+                                    <div style={{
+                                      fontSize: '11px',
+                                      color: '#999',
+                                      marginBottom: '4px',
+                                      fontWeight: '500'
+                                    }}>
+                                      💡 支持理由
+                                    </div>
+                                    <div style={{
+                                      fontSize: '13px',
+                                      color: '#666',
+                                      lineHeight: '1.6'
+                                    }}>
+                                      {item.why}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    // 处理其他复杂对象
                     if (typeof value === 'object' && value !== null) {
                       if (Array.isArray(value)) {
-                        // 处理数组类型
+                        // 处理普通数组类型
                         return (
                           <div key={key} style={{
                             display: 'flex',
@@ -530,7 +675,7 @@ function MainPage() {
                           </div>
                         );
                       }
-                      // 跳过复杂对象
+                      // 跳过其他复杂对象
                       return null;
                     }
 
@@ -577,6 +722,7 @@ function MainPage() {
                 onClick={() => {
                   setResult(null);
                   setInputValue('');
+                  setSubmittedInput(null);
                 }}
                 style={{
                   marginTop: '15px',
@@ -611,6 +757,65 @@ function MainPage() {
               ))}
             </div>
 
+            {/* Loading 提示 */}
+            {analyzing && (
+              <div style={{
+                padding: '16px',
+                background: 'linear-gradient(135deg, #e6f7ff 0%, #f0f5ff 100%)',
+                border: '1px solid #91d5ff',
+                borderRadius: '10px',
+                marginBottom: '15px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                width: '100%',
+                maxWidth: '100%',
+                boxSizing: 'border-box'
+              }}>
+                <div style={{
+                  width: '24px',
+                  height: '24px',
+                  border: '3px solid #e6f7ff',
+                  borderTop: '3px solid #1890ff',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite',
+                  flexShrink: 0
+                }} />
+                <div style={{
+                  flex: 1,
+                  minWidth: 0,
+                  overflow: 'hidden'
+                }}>
+                  <div style={{
+                    fontSize: '14px',
+                    color: '#1890ff',
+                    fontWeight: '600',
+                    marginBottom: '4px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
+                  }}>
+                    🔍 正在分析中...
+                  </div>
+                  <div style={{
+                    fontSize: '12px',
+                    color: '#666',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
+                  }}>
+                    AI 正在解析您的{submittedInput?.fileName ? '文件' : '文本'}，分析传导链路和风险因素
+                  </div>
+                </div>
+                <style>{`
+                  @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                  }
+                `}</style>
+              </div>
+            )}
+
             {/* 错误提示 */}
             {error && (
               <div style={{
@@ -620,7 +825,11 @@ function MainPage() {
                 borderRadius: '8px',
                 color: '#cf1322',
                 marginBottom: '15px',
-                fontSize: '14px'
+                fontSize: '14px',
+                width: '100%',
+                maxWidth: '100%',
+                boxSizing: 'border-box',
+                wordBreak: 'break-word'
               }}>
                 ❌ {error}
               </div>
@@ -630,44 +839,33 @@ function MainPage() {
             <form className="input-section" onSubmit={handleSubmit}>
               <div className="input-wrapper">
                 {selectedFile && (
-                  <div style={{
-                    padding: '10px',
-                    background: '#e6f7ff',
-                    borderRadius: '6px',
-                    marginBottom: '10px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between'
-                  }}>
-                    <span style={{ fontSize: '14px' }}>📎 {selectedFile.name}</span>
+                  <div className="file-chip">
+                    <span className="file-chip-name">📎 {selectedFile.name}</span>
                     <button
                       type="button"
                       onClick={() => setSelectedFile(null)}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        cursor: 'pointer',
-                        fontSize: '18px'
-                      }}
+                      className="file-chip-remove"
                     >
                       ✕
                     </button>
                   </div>
                 )}
-                <textarea
-                  className="chat-input"
-                  placeholder={selectedFile ? "已选择文件，点击发送开始分析..." : "粘贴公告或新闻全文，或上传文件（支持PDF/Word/TXT）..."}
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  rows={3}
-                  disabled={analyzing || !!selectedFile}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSubmit(e);
-                    }
-                  }}
-                />
+                {!selectedFile && (
+                  <textarea
+                    className="chat-input"
+                    placeholder="粘贴公告或新闻全文，或上传文件（支持PDF/Word/TXT）..."
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    rows={3}
+                    disabled={analyzing}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSubmit(e);
+                      }
+                    }}
+                  />
+                )}
                 <div className="input-actions">
                   <label htmlFor="file-upload" style={{ cursor: 'pointer' }}>
                     <input

@@ -681,6 +681,7 @@ body {
     radial-gradient(ellipse 60% 40% at 70% 20%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
     linear-gradient(180deg, #FDFAFF 0%, #FFFFFF 100%);
   transition: margin-left var(--transition-speed) ease;
+  overflow-x: hidden;
 }
 
 /* 侧边栏收缩时的主内容区 */
@@ -872,6 +873,62 @@ body {
   box-shadow: 0 4px 20px rgba(139, 92, 246, 0.12);
 }
 
+.submitted-file-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #333;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.submitted-file-name strong {
+  flex-shrink: 0;
+}
+
+.submitted-file-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  word-break: break-all;
+}
+
+.file-chip {
+  padding: 8px 12px;
+  background: #e6f7ff;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.file-chip-name {
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  word-break: break-all;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.file-chip-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+  flex-shrink: 0;
+  color: #666;
+  line-height: 1;
+}
+
 .chat-input {
   width: 100%;
   border: none;
@@ -1058,6 +1115,8 @@ body {
     padding-bottom: 20px;
     background: linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,0.95) 100%);
     gap: 12px;
+    box-sizing: border-box;
+    overflow: hidden;
   }
 
   .quick-actions {
@@ -1100,6 +1159,9 @@ body {
   .input-wrapper {
     padding: 14px 16px;
     border-radius: 20px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   .chat-input {
