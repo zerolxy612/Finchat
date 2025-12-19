@@ -27,3 +27,7 @@ lerna-debug.log*
 .env
 .env.local
 .env.*.local
+
+# 保留这些文件（不忽略）
+# .env.development
+# .env.production
