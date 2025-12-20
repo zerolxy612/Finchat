@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './index.css';
-import { login, register, sendMessage, sendMessageWithFile } from './services/api-v2';
-import type { MessageType, Message } from './types/api-v2';
+import { getHistoryList, getMessageDetail, login, register, sendMessage, sendMessageWithFile } from './services/api-v2';
+import type { MessageType, Message, HistoryItem } from './types/api-v2';
 import { PathChain } from './components/PathChain';
 
 // 辅助函数：格式化字段名称
@@ -240,6 +240,11 @@ function MainPage() {
   const [result, setResult] = useState<Message | null>(null);
   const [error, setError] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyError, setHistoryError] = useState('');
+  const [selectedHistoryId, setSelectedHistoryId] = useState<string | null>(null);
+  const [loadingHistoryDetail, setLoadingHistoryDetail] = useState(false);
   // 保存用户提交时的输入信息，用于结果展示
   const [submittedInput, setSubmittedInput] = useState<{
     type: MessageType;
@@ -269,7 +274,26 @@ function MainPage() {
     setResult(null);
     setError('');
     setSelectedFile(null);
+    setSelectedHistoryId(null);
   };
+
+  // 加载历史列表
+  const fetchHistory = async () => {
+    setHistoryLoading(true);
+    setHistoryError('');
+    try {
+      const data = await getHistoryList({ pageNumber: 1, pageSize: 50 });
+      setHistory(data.items || []);
+    } catch (err: any) {
+      setHistoryError(err.message || '获取历史记录失败');
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchHistory();
+  }, []);
 
   // 文件选择
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -284,6 +308,43 @@ function MainPage() {
       }
       setSelectedFile(file);
       setError('');
+    }
+  };
+
+  const buildTitle = () => {
+    if (selectedFile?.name) return selectedFile.name;
+    if (inputValue.trim()) return inputValue.trim().slice(0, 30);
+    const quick = quickActions.find((action) => action.type === selectedType);
+    return quick ? quick.label : '新对话';
+  };
+
+  const handleNewChat = () => {
+    setResult(null);
+    setInputValue('');
+    setSelectedFile(null);
+    setSubmittedInput(null);
+    setSelectedHistoryId(null);
+    setError('');
+  };
+
+  const handleHistorySelect = async (id: string) => {
+    setSelectedHistoryId(id);
+    setLoadingHistoryDetail(true);
+    setError('');
+    setResult(null);
+    setSubmittedInput(null);
+    try {
+      const detail = await getMessageDetail(id);
+      setResult(detail);
+      setSubmittedInput({
+        type: detail.type,
+        content: detail.content,
+      });
+      setSelectedType(detail.type);
+    } catch (err: any) {
+      setError(err.message || '加载历史记录失败');
+    } finally {
+      setLoadingHistoryDetail(false);
     }
   };
 
@@ -305,24 +366,29 @@ function MainPage() {
     setAnalyzing(true);
     setError('');
     setResult(null);
+    setSelectedHistoryId(null);
 
     try {
       let response: Message;
+      const title = buildTitle();
 
       if (selectedFile) {
         // 文件上传模式
-        response = await sendMessageWithFile(selectedFile, selectedType);
+        response = await sendMessageWithFile(selectedFile, selectedType, title);
       } else {
         // 文本输入模式
         response = await sendMessage({
           content: inputValue,
           type: selectedType,
+          title,
         });
       }
 
       setResult(response);
       setInputValue('');
       setSelectedFile(null);
+      setSelectedHistoryId(response.id);
+      fetchHistory();
     } catch (err: any) {
       setError(err.message || '分析失败，请稍后重试');
     } finally {
@@ -391,13 +457,35 @@ function MainPage() {
           <input type="text" placeholder="搜索对话..." />
         </div>
 
-        <button className="new-chat-sidebar-btn">
+        <button className="new-chat-sidebar-btn" onClick={handleNewChat}>
           <span className="new-chat-icon">+</span>
           <span className="new-chat-text">新建对话</span>
         </button>
 
         <div className="chat-list">
-          <p className="empty-state">暂无对话</p>
+          {historyLoading && <p className="empty-state">加载中...</p>}
+          {historyError && !historyLoading && <p className="empty-state">{historyError}</p>}
+          {!historyLoading && !historyError && history.length === 0 && (
+            <p className="empty-state">暂无对话</p>
+          )}
+          {!historyLoading && history.map((item) => {
+            const action = quickActions.find((q) => q.type === item.type);
+            const tag = action ? `${action.icon} ${action.label}` : item.type;
+            const time = item.createdAt ? new Date(item.createdAt).toLocaleString() : '';
+            return (
+              <button
+                key={item.id}
+                className={`chat-item ${selectedHistoryId === item.id ? 'active' : ''}`}
+                onClick={() => handleHistorySelect(item.id)}
+              >
+                <div className="chat-item-title">{item.title || '新对话'}</div>
+                <div className="chat-item-meta">
+                  <span className="chat-item-tag">{tag}</span>
+                  <span className="chat-item-time">{time}</span>
+                </div>
+              </button>
+            );
+          })}
         </div>
 
         <div className="sidebar-footer">
@@ -437,7 +525,7 @@ function MainPage() {
               <span className="logo-text">FinChat</span>
             </div>
           </div>
-          <button className="new-chat-btn">
+          <button className="new-chat-btn" onClick={handleNewChat}>
             新对话
           </button>
         </header>
@@ -451,6 +539,11 @@ function MainPage() {
                 <br />
                 请粘贴需要分析的<span className="highlight">公告或新闻</span>
               </h1>
+            </div>
+          )}
+          {loadingHistoryDetail && (
+            <div style={{ margin: '10px auto', padding: '10px 14px', background: '#f0f5ff', borderRadius: '8px', color: '#2f54eb', maxWidth: '560px', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
+              正在加载历史记录...
             </div>
           )}
 
