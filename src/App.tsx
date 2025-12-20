@@ -2,6 +2,7 @@ import { useState } from 'react';
 import './index.css';
 import { login, register, sendMessage, sendMessageWithFile } from './services/api-v2';
 import type { MessageType, Message } from './types/api-v2';
+import { PathChain } from './components/PathChain';
 
 // 辅助函数：格式化字段名称
 const formatFieldName = (key: string): string => {
@@ -505,7 +506,7 @@ function MainPage() {
                     </div>
                   ) : (
                     <div style={{ fontSize: '13px', color: '#666', lineHeight: '1.6', width: '100%' }}>
-                      <strong style={{ color: '#333' }}>原始输入：</strong>
+                      <strong style={{ color: '#333' }}>用户问题：</strong>
                       <span style={{
                         display: 'block',
                         marginTop: '6px',
@@ -536,16 +537,8 @@ function MainPage() {
 
               {/* 传导链路 */}
               <div style={{ marginBottom: '25px', padding: '15px', background: '#e6f7ff', borderRadius: '8px', border: '1px solid #91d5ff' }}>
-                <h3 style={{ marginBottom: '10px', color: '#1890ff' }}>🔗 传导链路</h3>
-                <pre style={{
-                  whiteSpace: 'pre-wrap',
-                  fontSize: '14px',
-                  lineHeight: '1.8',
-                  margin: 0,
-                  fontFamily: 'inherit'
-                }}>
-                  {result.response.path_text}
-                </pre>
+                <h3 style={{ marginBottom: '15px', color: '#1890ff' }}>🔗 传导链路</h3>
+                <PathChain pathText={result.response.path_text} />
               </div>
 
               {/* 风险提示 */}
