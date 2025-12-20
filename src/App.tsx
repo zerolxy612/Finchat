@@ -245,6 +245,7 @@ function MainPage() {
   const [historyError, setHistoryError] = useState('');
   const [selectedHistoryId, setSelectedHistoryId] = useState<string | null>(null);
   const [loadingHistoryDetail, setLoadingHistoryDetail] = useState(false);
+  const [searchKeyword, setSearchKeyword] = useState('');
   // 保存用户提交时的输入信息，用于结果展示
   const [submittedInput, setSubmittedInput] = useState<{
     type: MessageType;
@@ -295,6 +296,15 @@ function MainPage() {
     fetchHistory();
   }, []);
 
+  const filteredHistory = history.filter((item) => {
+    if (!searchKeyword.trim()) return true;
+    const keyword = searchKeyword.trim().toLowerCase();
+    return (
+      (item.title && item.title.toLowerCase().includes(keyword)) ||
+      (item.type && item.type.toLowerCase().includes(keyword))
+    );
+  });
+
   // 文件选择
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -316,15 +326,6 @@ function MainPage() {
     if (inputValue.trim()) return inputValue.trim().slice(0, 30);
     const quick = quickActions.find((action) => action.type === selectedType);
     return quick ? quick.label : '新对话';
-  };
-
-  const handleNewChat = () => {
-    setResult(null);
-    setInputValue('');
-    setSelectedFile(null);
-    setSubmittedInput(null);
-    setSelectedHistoryId(null);
-    setError('');
   };
 
   const handleHistorySelect = async (id: string) => {
@@ -454,13 +455,16 @@ function MainPage() {
         
         <div className="search-box">
           <span className="search-icon">🔍</span>
-          <input type="text" placeholder="搜索对话..." />
+          <input
+            type="text"
+            placeholder="搜索对话..."
+            value={searchKeyword}
+            onChange={(e) => {
+              setSearchKeyword(e.target.value);
+              setSelectedHistoryId(null);
+            }}
+          />
         </div>
-
-        <button className="new-chat-sidebar-btn" onClick={handleNewChat}>
-          <span className="new-chat-icon">+</span>
-          <span className="new-chat-text">新建对话</span>
-        </button>
 
         <div className="chat-list">
           {historyLoading && <p className="empty-state">加载中...</p>}
@@ -468,7 +472,10 @@ function MainPage() {
           {!historyLoading && !historyError && history.length === 0 && (
             <p className="empty-state">暂无对话</p>
           )}
-          {!historyLoading && history.map((item) => {
+          {!historyLoading && filteredHistory.length === 0 && history.length > 0 && (
+            <p className="empty-state">无匹配结果</p>
+          )}
+          {!historyLoading && filteredHistory.map((item) => {
             const action = quickActions.find((q) => q.type === item.type);
             const tag = action ? `${action.icon} ${action.label}` : item.type;
             const time = item.createdAt ? new Date(item.createdAt).toLocaleString() : '';
@@ -525,9 +532,6 @@ function MainPage() {
               <span className="logo-text">FinChat</span>
             </div>
           </div>
-          <button className="new-chat-btn" onClick={handleNewChat}>
-            新对话
-          </button>
         </header>
 
         {/* 欢迎区域 */}

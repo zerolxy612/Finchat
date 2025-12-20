@@ -395,7 +395,6 @@ body {
 .sidebar.collapsed .logo-text,
 .sidebar.collapsed .version,
 .sidebar.collapsed .search-box input,
-.sidebar.collapsed .new-chat-text,
 .sidebar.collapsed .username,
 .sidebar.collapsed .empty-state {
   opacity: 0;
@@ -420,12 +419,6 @@ body {
 .sidebar.collapsed .search-box {
   justify-content: center;
   padding: 10px;
-  margin: 8px;
-}
-
-.sidebar.collapsed .new-chat-sidebar-btn {
-  justify-content: center;
-  padding: 12px;
   margin: 8px;
 }
 
@@ -536,36 +529,6 @@ body {
 
 .search-box input::placeholder {
   color: var(--text-muted);
-}
-
-.new-chat-sidebar-btn {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0 16px 12px;
-  padding: 12px 14px;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-  border: none;
-  border-radius: 10px;
-  color: white;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.new-chat-sidebar-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
-}
-
-.new-chat-icon {
-  font-size: 18px;
-  flex-shrink: 0;
-}
-
-.new-chat-text {
-  transition: opacity var(--transition-speed) ease, width var(--transition-speed) ease;
 }
 
 .chat-list {
@@ -798,20 +761,6 @@ body {
 .nav-logo .logo-text {
   font-size: 17px;
   font-weight: 600;
-}
-
-.new-chat-btn {
-  background: none;
-  border: none;
-  font-size: 18px;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 8px;
-  transition: background 0.2s;
-}
-
-.new-chat-btn:hover {
-  background: var(--bg-secondary);
 }
 
 /* ========== 欢迎区域 ========== */
